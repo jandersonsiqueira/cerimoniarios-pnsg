@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, models } from 'mongoose';
 
 const RecurrenceSchema = new Schema({
   type: { type: String, enum: ['single','weekly','monthlyByWeekday','monthlyByMonthday'], required: true },
@@ -18,7 +18,7 @@ const RecurrenceSchema = new Schema({
 }, { _id: false });
 
 const ShiftTemplateSchema = new Schema({
-  title: { type: String, required: true },
+  title: { type: String },
   locationId: { type: Types.ObjectId, ref: 'Location' },
   time: {
     start: { type: String }
@@ -30,4 +30,6 @@ const ShiftTemplateSchema = new Schema({
   createdBy: { type: Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
-export default model('ShiftTemplate', ShiftTemplateSchema);
+const ShiftTemplateModel = (models && (models.ShiftTemplate as any)) || model('ShiftTemplate', ShiftTemplateSchema);
+
+export default ShiftTemplateModel;

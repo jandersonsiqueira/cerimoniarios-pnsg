@@ -1,0 +1,89 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const WEEKDAYS = [
+  { id: 1, label: 'SEGUNDA' },
+  { id: 2, label: 'TERÇA' },
+  { id: 3, label: 'QUARTA' },
+  { id: 4, label: 'QUINTA' },
+  { id: 5, label: 'SEXTA' },
+  { id: 6, label: 'SÁBADO' }
+];
+
+export default function TemplatesWeeklyPage() {
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selected, setSelected] = useState<number>(1); // default to Monday
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await axios.get('/shift-templates');
+        if (mounted) setTemplates(res.data || []);
+      } catch (err) { console.error('fetch templates', err); }
+    })();
+    return () => { mounted = false };
+  }, []);
+
+  const weeklyTemplates = templates.filter(t => t.recurrence?.type === 'weekly');
+  const itemsForDay = weeklyTemplates.filter(t => (t.recurrence?.weekly?.weekdays || []).includes(selected));
+
+  const openEditTemplate = (templateId: string) => {
+    if (!templateId) return;
+    window.history.pushState({}, '', `/templates/${templateId}?from=/templates/weekly`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <h2>Escala Fixa Semanal</h2>
+        </div>
+        <div style={{ width: 320 }} />
+      </div>
+
+      <div className="weekday-row" style={{ marginBottom: 12 }}>
+        {WEEKDAYS.map(d => (
+          <button
+            key={d.id}
+            className={`weekday-btn ${selected === d.id ? 'active' : ''}`}
+            onClick={() => setSelected(d.id)}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+
+      <div>
+        {itemsForDay.length === 0 && (
+          <div className="empty">Nenhuma escala fixa para {WEEKDAYS.find(w => w.id === selected)?.label}</div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+          {itemsForDay.map(t => (
+            <div key={t._id} className="card square" onClick={() => openEditTemplate(t._id)} style={{ cursor: 'pointer' }}>
+              <div style={{ fontWeight: 700 }}>{t.locationId?.name || '— local —'}</div>
+              <div style={{ color: '#64748b', marginTop: 6 }}>{t.time?.start || '—'}</div>
+              <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {(t.users || []).slice(0,4).map((u: any) => (
+                  <div key={u._id} className="chip">{u.name}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* bottom-right back button so user returns to templates list (or weekly parent) */}
+      <button
+        className="back-fab"
+        aria-label="Voltar"
+        onClick={() => { window.history.pushState({}, '', '/templates'); window.dispatchEvent(new PopStateEvent('popstate')); }}
+      >
+        ←
+      </button>
+
+    </div>
+  );
+}

@@ -98,12 +98,27 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Robo
 }
 .fab:active { transform: translateY(1px) }
 
-/* ensure FAB doesn't overlap footer on very small pages */
+/* back button FAB */
+.back-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background: #fff;
+  border:1px solid #e6eef8;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.08);
+  display:inline-flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:80;
+}
+
+/* prevent some titles from breaking lines on small screens */
+.page-header h2, .page h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+
 @media (max-height:520px) {
   .fab { bottom: 76px }
 }
 
-/* responsive */
 @media (max-width: 800px) {
   .app-body { flex-direction:column }
   /* limit sidebar width on smaller screens so it doesn't occupy the whole viewport */
@@ -116,6 +131,7 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Robo
 /* on very small screens fine-tune width so it never fills entire viewport */
 @media(max-width:420px) {
   .app-sidebar { width: min(65vw, 300px); max-width: 320px; right: 0; left: auto; }
+  .page-header h2, .page h2 { white-space: normal }
 }
 
 /* editor page */
@@ -141,4 +157,74 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Robo
 
 .data-table tbody tr:hover td:last-child {
   background: #f8fafc;
+}
+
+/* User multi-select */
+.multi-select { position: relative; }
+.multi-select__control { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border:1px solid #e6eef8; border-radius:8px; background:#fff; cursor:pointer }
+.multi-select__control.open { box-shadow: 0 8px 24px rgba(2,6,23,0.06); }
+.multi-select__placeholder { color:#64748b }
+.multi-select__chips { display:flex; gap:6px; flex-wrap:wrap }
+.chip { background:#eef2ff; color:#0f172a; padding:6px 8px; border-radius:999px; font-size:13px }
+.multi-select__dropdown { position: absolute; left:0; right:0; top: calc(100% + 8px); background:#fff; border:1px solid #e6eef8; border-radius:8px; box-shadow: 0 12px 40px rgba(2,6,23,0.08); z-index:120; max-height:280px; overflow:auto }
+.multi-select__list { display:flex; flex-direction:column }
+.multi-select__item { padding:8px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer }
+.multi-select__item:hover { background:#fafbff }
+.multi-select__item.selected { background: linear-gradient(90deg,#eef2ff,#f8fbff) }
+
+/* big blocks on templates page */
+.big-card {
+  background:#fff;
+  border:1px solid #e6eef8;
+  border-radius:12px;
+  padding:18px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:120px;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.big-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(2,6,23,0.08);
+}
+
+/* square template cards used in weekly view */
+.card.square {
+  border-radius:12px;
+  padding:18px;
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:flex-start;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card.square .chip { margin-top:8px }
+.card.square:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(2,6,23,0.06); }
+
+/* weekday buttons */
+.weekday-btn {
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #e6eef8;
+  background:#fff;
+  cursor:pointer;
+  font-weight:700;
+  color:#0f172a;
+}
+.weekday-btn + .weekday-btn { margin-left: 6px }
+.weekday-btn.active { background: linear-gradient(90deg,#eef2ff,#f8fbff); border-color:#c7ddff; box-shadow: 0 6px 18px rgba(2,6,23,0.04); }
+
+/* small helpers to keep grid tidy */
+.page .big-card .result-count { margin-top:6px }
+
+/* allow horizontal scroll on small screens and keep buttons accessible */
+.weekday-row { display:flex; gap:12px; flex-wrap:wrap; padding-bottom:6px }
+
+@media (max-width: 640px) {
+  .weekday-row { gap:8px }
+  /* allow buttons to wrap and shrink a bit on small screens */
+  .weekday-btn { min-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 }

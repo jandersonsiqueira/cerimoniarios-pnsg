@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import LocationsPage from './pages/LocationsPage';
-import UsersPage from './pages/UsersPage';
-import LocationEditor from './pages/LocationEditor';
-import UserEditor from './pages/UserEditor';
+import LocationsPage from './pages/locations/LocationsPage';
+import UsersPage from './pages/users/UsersPage';
+import LocationEditor from './pages/locations/LocationEditor';
+import UserEditor from './pages/users/UserEditor';
+import ShiftTemplatesPage from './pages/templates/ShiftTemplatesPage';
+import ShiftTemplateEditor from './pages/templates/ShiftTemplateEditor';
+import TemplatesWeeklyPage from './pages/templates/TemplatesWeeklyPage';
+import TemplatesMonthlyPage from './pages/templates/TemplatesMonthlyPage';
 
 axios.defaults.baseURL = (import.meta as any).env?.DEV ? 'http://localhost:4000/api' : '/api';
 
@@ -17,6 +21,10 @@ export default function App() {
     if (p === '/locations') return 'locations';
     if (p === '/users') return 'users';
     if (p === '/templates') return 'templates';
+    if (p === '/templates/new') return 'template_new';
+    if (p === '/templates/weekly') return 'templates_weekly';
+    if (p === '/templates/monthly') return 'templates_monthly';
+    if (p.startsWith('/templates/')) return 'template_edit';
     if (p === '/locations/new') return 'location_new';
     if (p.startsWith('/locations/')) return 'location_edit';
     if (p === '/users/new') return 'user_new';
@@ -31,6 +39,8 @@ export default function App() {
     if (m1) return m1[1];
     const m2 = p.match(/^\/users\/(.+)/);
     if (m2) return m2[1];
+    const m3 = p.match(/^\/templates\/(.+)/);
+    if (m3) return m3[1];
     return null;
   });
 
@@ -40,11 +50,14 @@ export default function App() {
     window.history.pushState({}, '', normalized);
 
     // derive page and id from normalized
-    if (normalized === '/' || normalized === '/dashboard') {
-      setPage('dashboard'); setCurrentId(null);
-    } else if (normalized === '/locations') { setPage('locations'); setCurrentId(null); }
+    if (normalized === '/' || normalized === '/dashboard') { setPage('dashboard'); setCurrentId(null); }
+    else if (normalized === '/locations') { setPage('locations'); setCurrentId(null); }
     else if (normalized === '/users') { setPage('users'); setCurrentId(null); }
     else if (normalized === '/templates') { setPage('templates'); setCurrentId(null); }
+    else if (normalized === '/templates/new') { setPage('template_new'); setCurrentId(null); }
+    else if (normalized === '/templates/weekly') { setPage('templates_weekly'); setCurrentId(null); }
+    else if (normalized === '/templates/monthly') { setPage('templates_monthly'); setCurrentId(null); }
+    else if (normalized.startsWith('/templates/')) { setPage('template_edit'); setCurrentId(normalized.replace('/templates/', '')); }
     else if (normalized === '/locations/new') { setPage('location_new'); setCurrentId(null); }
     else if (normalized.startsWith('/locations/')) { setPage('location_edit'); setCurrentId(normalized.replace('/locations/', '')); }
     else if (normalized === '/users/new') { setPage('user_new'); setCurrentId(null); }
@@ -63,6 +76,10 @@ export default function App() {
       else if (p === '/locations') { setPage('locations'); setCurrentId(null); }
       else if (p === '/users') { setPage('users'); setCurrentId(null); }
       else if (p === '/templates') { setPage('templates'); setCurrentId(null); }
+      else if (p === '/templates/new') { setPage('template_new'); setCurrentId(null); }
+      else if (p === '/templates/weekly') { setPage('templates_weekly'); setCurrentId(null); }
+      else if (p === '/templates/monthly') { setPage('templates_monthly'); setCurrentId(null); }
+      else if (p.startsWith('/templates/')) { setPage('template_edit'); setCurrentId(p.replace('/templates/', '')); }
       else if (p === '/locations/new') { setPage('location_new'); setCurrentId(null); }
       else if (p.startsWith('/locations/')) { setPage('location_edit'); setCurrentId(p.replace('/locations/', '')); }
       else if (p === '/users/new') { setPage('user_new'); setCurrentId(null); }
@@ -88,15 +105,8 @@ export default function App() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const onSaved = async () => {
-    await fetchData();
-    navigate('/locations');
-  };
-
-  const onUserSaved = async () => {
-    await fetchData();
-    navigate('/users');
-  };
+  const onSaved = async () => { await fetchData(); navigate('/locations'); };
+  const onUserSaved = async () => { await fetchData(); navigate('/users'); };
 
   return (
     <div className="app-root">
@@ -175,10 +185,23 @@ export default function App() {
           )}
 
           {page === 'templates' && (
-            <div>
-              <h2>Escalas</h2>
-              <p>Formulário de criação de escalas será implementado em breve.</p>
-            </div>
+            <ShiftTemplatesPage />
+          )}
+
+          {page === 'template_new' && (
+            <ShiftTemplateEditor onSaved={() => { fetchData(); }} />
+          )}
+
+          {page === 'template_edit' && currentId && (
+            <ShiftTemplateEditor id={currentId} onSaved={() => { fetchData(); }} />
+          )}
+
+          {page === 'templates_weekly' && (
+            <TemplatesWeeklyPage />
+          )}
+
+          {page === 'templates_monthly' && (
+            <TemplatesMonthlyPage />
           )}
         </main>
       </div>

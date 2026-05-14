@@ -6,9 +6,13 @@ router.post('/', async (req, res) => {
   try {
     const ShiftTemplate = require('../models/shiftTemplate').default;
 
-    const body = req.body;
-    if (!body.title || !body.recurrence || !body.recurrence.type || !body.recurrence.startDate) {
-      return res.status(400).json({ error: 'title, recurrence.type and recurrence.startDate required' });
+    const body = req.body || {};
+    if (!body.recurrence || !body.recurrence.type) {
+      return res.status(400).json({ error: 'recurrence.type required' });
+    }
+
+    if (!body.recurrence.startDate) {
+      body.recurrence.startDate = new Date();
     }
 
     if (body.recurrence.startDate) body.recurrence.startDate = new Date(body.recurrence.startDate);
