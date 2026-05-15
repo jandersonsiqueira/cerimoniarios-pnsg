@@ -48,20 +48,20 @@ export default function ShiftTemplatesPage() {
       </div>
 
       <div style={{ display:'grid', gap:12 }}>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div className="big-card" style={{ flex: 1, cursor: 'pointer' }} onClick={openWeekly}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div className="big-card" style={{ flex: '1 1 240px', minWidth: 220, cursor: 'pointer' }} onClick={openWeekly}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>Escalas Semanais</div>
-            <div style={{ marginTop: 12, color: '#0ea5a0' }}>Ver escalas semanal</div>
+            <div style={{ marginTop: 8, color: '#0ea5a0' }}>Ver escalas semanal</div>
           </div>
 
-          <div className="big-card" style={{ flex: 1, cursor: 'pointer' }} onClick={openMonthly}>
+          <div className="big-card" style={{ flex: '1 1 240px', minWidth: 220, cursor: 'pointer' }} onClick={openMonthly}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>Escalas Mensais</div>
-            <div style={{ marginTop: 12, color: '#0ea5a0' }}>Ver escalas mensais</div>
+            <div style={{ marginTop: 8, color: '#0ea5a0' }}>Ver escalas mensais</div>
           </div>
 
-          <div className="big-card" style={{ flex: 1, cursor: 'pointer' }} onClick={() => { window.history.pushState({}, '', '/agenda'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
+          <div className="big-card" style={{ flex: '1 1 240px', minWidth: 220, cursor: 'pointer' }} onClick={() => { window.history.pushState({}, '', '/agenda'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>Agenda</div>
-            <div style={{ marginTop: 12, color: '#0ea5a0' }}>Visão semanal</div>
+            <div style={{ marginTop: 8, color: '#0ea5a0' }}>Visão semanal</div>
           </div>
         </div>  
       </div>
