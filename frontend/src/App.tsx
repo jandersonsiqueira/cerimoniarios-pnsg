@@ -11,7 +11,9 @@ import TemplatesMonthlyPage from './pages/templates/TemplatesMonthlyPage';
 import AgendaPage from './pages/templates/AgendaPage';
 import AgendaEventEditor from './pages/templates/AgendaEventEditor';
 
-axios.defaults.baseURL = (import.meta as any).env?.DEV ? 'http://localhost:4000/api' : '/api';
+const metaEnv = (import.meta as any).env || {};
+const apiBase = metaEnv.VITE_API_BASE ? metaEnv.VITE_API_BASE : (metaEnv.DEV ? 'http://localhost:4000/api' : '/api');
+axios.defaults.baseURL = apiBase;
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);

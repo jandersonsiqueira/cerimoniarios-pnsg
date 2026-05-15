@@ -152,15 +152,15 @@ export default function AgendaPage() {
             {/* Agenda events created manually */}
             {eventsForDay.length > 0 && (
               <div style={{ marginTop: 12 }}>
-                <h4 style={{ marginBottom: 8 }}>Eventos criados</h4>
+                <h4 style={{ marginBottom: 8 }}>Agendas do dia</h4>
                 <div style={{ display: 'grid', gap: 8 }}>
                   {eventsForDay.map((ev: any) => (
                     <div key={ev._id} className="card" style={{ padding: 12, cursor: 'pointer' }} onClick={() => openEventEdit(ev)}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontWeight: 700 }}>{ev.title || ev.priestName || 'Evento'}</div>
-                        <div style={{ color: '#666' }}>{ev.time?.start || ''}</div>
+                      <div style={{ fontWeight: 700 }}>{ev.title || ev.priestName || 'Evento'}</div>
+                      <div style={{ color: '#444', marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <div>{ev.locationId?.name || ''}</div>
+                        {ev.time?.start && (<div style={{ color: '#666' }}>| {ev.time?.start}</div>)}
                       </div>
-                      <div style={{ color: '#444', marginTop: 6 }}>{ev.locationId?.name || ''}</div>
                       <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {(ev.users || []).map((au: any, i: number) => (
                           <div key={i} style={{ background: '#f3f4f6', padding: '4px 8px', borderRadius: 6 }}>{au.userId?.name || 'Usuário' + i} {au.roles && au.roles.length ? `(${au.roles.join(',')})` : ''}</div>
