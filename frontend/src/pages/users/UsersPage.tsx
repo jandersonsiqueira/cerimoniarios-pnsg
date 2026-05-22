@@ -56,7 +56,6 @@ export default function UsersPage({ users, onCreated }: any) {
                 <tr>
                   <th>Nome</th>
                   <th>Email</th>
-                  <th style={{ width: 140 }}>ID</th>
                   <th style={{ width: 100, textAlign: 'right' }}>Ações</th>
                 </tr>
               </thead>
@@ -65,7 +64,6 @@ export default function UsersPage({ users, onCreated }: any) {
                   <tr key={u._id} onClick={() => openEdit(u._id)} style={{ cursor: 'pointer' }}>
                     <td className="td-name">{u.name}</td>
                     <td className="td-sub">{u.email || '— sem email —'}</td>
-                    <td className="td-id">{u._id?.slice?.(0,8)}</td>
                     <td className="td-actions">
                       <span style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                         <button className="action-btn danger" title="Remover" onClick={(e) => handleDelete(u  ._id, e)}>🗑️</button>

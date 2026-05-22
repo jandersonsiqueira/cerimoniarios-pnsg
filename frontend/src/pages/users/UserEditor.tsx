@@ -5,6 +5,10 @@ export default function UserEditor({ id, onSaved }: any) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -17,6 +21,7 @@ export default function UserEditor({ id, onSaved }: any) {
       const data = res.data || {};
       setName(data.name || '');
       setEmail(data.email || '');
+      setPhone(formatPhone(data.phone || ''));
     }).catch(err => console.error('load user', err)).finally(() => setLoading(false));
     return () => { mounted = false };
   }, [id]);
@@ -28,10 +33,24 @@ export default function UserEditor({ id, onSaved }: any) {
 
   const submit = async (e: any) => {
     e.preventDefault();
+
+    if (!email && !phone) return alert('Informe email ou telefone');
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return alert('Email inválido');
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (phone && phoneDigits.length !== 11) return alert('Telefone inválido: informe DDD + número (11 dígitos)');
+    if (password) {
+      if (password.length < 6) return alert('Senha muito curta (mínimo 6 caracteres)');
+      if (password !== confirmPassword) return alert('Senhas não coincidem');
+    }
+
     setSaving(true);
     try {
-      if (id) await axios.post(`/users/${id}`, { name, email });
-      else await axios.post('/users', { name, email });
+      const payload: any = { name, email };
+      if (phone) payload.phone = phoneDigits;
+      if (password) payload.password = password;
+      if (mustChangePassword) payload.mustChangePassword = true;
+      if (id) await axios.post(`/users/${id}`, payload);
+      else await axios.post('/users', payload);
       onSaved && onSaved();
       close();
     } catch (err) {
@@ -54,15 +73,24 @@ export default function UserEditor({ id, onSaved }: any) {
     } finally { setDeleting(false); }
   };
 
+  const formatPhone = (value: string) => {
+    const d = value.replace(/\D/g, '').slice(0, 11);
+    if (d.length === 0) return '';
+    if (d.length <= 2) return `(${d}`;
+    if (d.length <= 6) return `(${d.slice(0,2)}) ${d.slice(2)}`;
+    return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+  };
+
+  const handlePhoneChange = (e: any) => {
+    const raw = e.target.value;
+    setPhone(formatPhone(raw));
+  };
+
   return (
     <div className="editor-page">
       <div className="editor-card">
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: 8 }}>
           <h3 style={{ margin:0 }}>{id ? 'Editar Usuário' : 'Adicionar Usuário'}</h3>
-          <div>
-            {id && <button className="btn secondary" onClick={handleDelete} disabled={deleting}>{deleting ? 'Apagando...' : 'Apagar'}</button>}
-            <button className="btn" style={{ marginLeft: 8 }} onClick={close}>Fechar</button>
-          </div>
         </div>
 
         {loading ? <div>Carregando...</div> : (
@@ -71,9 +99,24 @@ export default function UserEditor({ id, onSaved }: any) {
               <input className="input" placeholder="Nome" value={name} onChange={e => setName(e.target.value)} required />
               <input className="input" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
+            <div className="form-row">
+              <input className="input" placeholder="(00) 00000-0000" value={phone} onChange={handlePhoneChange} inputMode="numeric" maxLength={15} />
+            </div>
+            <div className="form-row">
+              <input className="input" type="password" placeholder="Nova Senha" value={password} onChange={e => setPassword(e.target.value)} />
+              <input className="input" type="password" placeholder="Confirmar Senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+            </div>
+            {id && (
+              <div style={{ marginBottom: 8 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="checkbox" checked={mustChangePassword} onChange={e => setMustChangePassword(e.target.checked)} />
+                  <span>Exigir troca de senha no próximo login</span>
+                </label>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn" type="submit" disabled={saving}>{saving ? 'Salvando...' : (id ? 'Salvar' : 'Criar')}</button>
-              <button type="button" className="btn secondary" onClick={() => { setName(''); setEmail(''); }}>Limpar</button>
+              {id && <button type="button" className="btn secondary" onClick={handleDelete} disabled={deleting}>{deleting ? 'Apagando...' : 'Apagar'}</button>}
             </div>
           </form>
         )}

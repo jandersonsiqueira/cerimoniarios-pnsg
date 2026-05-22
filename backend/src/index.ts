@@ -6,6 +6,7 @@ import locationsRouter from './routes/locations';
 import usersRouter from './routes/users';
 import templatesRouter from './routes/shiftTemplates';
 import agendaEventsRouter from './routes/agendaEvents';
+import authRouter from './routes/auth';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 import denyWrites from './middleware/denyWrites';
 app.use(denyWrites);
 
+app.use('/api/auth', authRouter);
 app.use('/api/locations', locationsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/shift-templates', templatesRouter);

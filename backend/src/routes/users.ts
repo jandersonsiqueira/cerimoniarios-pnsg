@@ -1,13 +1,30 @@
 import { Router } from 'express';
 import User from '../models/user';
+import bcrypt from 'bcryptjs';
 
 const router = Router();
 
 router.post('/', async (req, res) => {
   try {
-    const u = new User(req.body);
+    const { name, email, phone, password, mustChangePassword } = req.body;
+    if (!email && !phone) return res.status(400).json({ error: 'email or phone required' });
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: 'invalid email' });
+    if (phone && !/^[0-9+\-()\s]{6,}$/.test(phone)) return res.status(400).json({ error: 'invalid phone' });
+
+    const u = new User({ name, email, phone });
+    const mustChange = typeof mustChangePassword === 'boolean' ? mustChangePassword : (password ? false : true);
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      (u as any).passwordHash = hash;
+      (u as any).mustChangePassword = mustChange;
+    } else {
+      (u as any).mustChangePassword = mustChange;
+    }
+
     await u.save();
-    res.json(u);
+    const obj = u.toObject();
+    delete obj.passwordHash;
+    res.json(obj);
   } catch (err) {
     res.status(500).json({ error: 'failed to create user' });
   }
@@ -37,9 +54,22 @@ router.get('/:id', async (req, res) => {
 router.post('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await User.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    const { name, email, phone, password, mustChangePassword } = req.body;
+    if (!email && !phone) return res.status(400).json({ error: 'email or phone required' });
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: 'invalid email' });
+    if (phone && !/^[0-9+\-()\s]{6,}$/.test(phone)) return res.status(400).json({ error: 'invalid phone' });
+
+    const update: any = { name, email, phone };
+    if (typeof mustChangePassword === 'boolean') update.mustChangePassword = mustChangePassword;
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      update.passwordHash = hash;
+      if (typeof mustChangePassword !== 'boolean') update.mustChangePassword = false;
+    }
+
+    const updated = await User.findByIdAndUpdate(id, update, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ error: 'user not found' });
-    res.json(updated);
+    const obj = updated.toObject(); delete obj.passwordHash; res.json(obj);
   } catch (err) {
     console.error('users POST (update) error', err);
     res.status(500).json({ error: 'failed to update user', details: (err as any)?.message });

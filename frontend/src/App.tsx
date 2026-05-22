@@ -10,6 +10,11 @@ import TemplatesWeeklyPage from './pages/templates/TemplatesWeeklyPage';
 import TemplatesMonthlyPage from './pages/templates/TemplatesMonthlyPage';
 import AgendaPage from './pages/templates/AgendaPage';
 import AgendaEventEditor from './pages/templates/AgendaEventEditor';
+import LoginPage from './pages/auth/LoginPage';
+import ChangePasswordModal from './components/ChangePasswordModal';
+
+const modalStyle: React.CSSProperties = { position: 'fixed', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.4)', zIndex: 200 };
+const modalCard: React.CSSProperties = { background: '#fff', padding: 18, borderRadius: 8, width: '100%', maxWidth: 420 };
 
 const metaEnv = (import.meta as any).env || {};
 const apiBase = metaEnv.VITE_API_BASE ? metaEnv.VITE_API_BASE : (metaEnv.DEV ? 'http://localhost:4000/api' : '/api');
@@ -21,6 +26,7 @@ export default function App() {
   const [users, setUsers] = useState<any[]>([]);
   const [page, setPage] = useState<string>(() => {
     const p = window.location.pathname.replace(/\/$/, '');
+    if (p === '/login') return 'login';
     if (p === '' || p === '/') return 'dashboard';
     if (p === '/locations') return 'locations';
     if (p === '/users') return 'users';
@@ -53,28 +59,105 @@ export default function App() {
     return null;
   });
 
+  const [authUser, setAuthUser] = useState<any>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // initialize authentication from sessionStorage (survive page reloads)
+  useEffect(() => {
+    const initAuth = async () => {
+      const tok = sessionStorage.getItem('accessToken');
+      if (!tok) {
+        setAuthLoading(false);
+        return;
+      }
+      axios.defaults.headers.common['Authorization'] = `Bearer ${tok}`;
+      try {
+        const r = await axios.get('/auth/me');
+        // /auth/me may return the user directly or { user }
+        const payload = r.data || {};
+        const user = payload.user || payload;
+        setAuthUser(user || null);
+        setAccessToken(tok);
+        setMustChangePassword(!!user?.mustChangePassword);
+      } catch (err) {
+        console.error('initAuth failed', err);
+        sessionStorage.removeItem('accessToken');
+        delete axios.defaults.headers.common['Authorization'];
+        setAuthUser(null);
+        setAccessToken(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    initAuth();
+  }, []);
+
+  const handleLogin = async (identity: string, password: string) => {
+    const res = await axios.post('/auth/login', { identity, password });
+    const { accessToken: token, user, mustChangePassword } = res.data || {};
+    if (token) {
+      // persist for this tab/session
+      sessionStorage.setItem('accessToken', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setAccessToken(token);
+    }
+    setAuthUser(user || null);
+    setMustChangePassword(!!mustChangePassword);
+    navigate('/');
+  };
+
+  const handleLogout = async () => {
+    try { await axios.post('/auth/logout'); } catch {}
+    sessionStorage.removeItem('accessToken');
+    delete axios.defaults.headers.common['Authorization'];
+    setAuthUser(null);
+    setAccessToken(null);
+    navigate('/login');
+  };
+
   // navigate to a path and update history
   const navigate = (path: string) => {
     const normalized = path === '/' ? '/' : (path.startsWith('/') ? path : `/${path}`);
     window.history.pushState({}, '', normalized);
 
     // derive page and id from normalized
-    if (normalized === '/' || normalized === '/dashboard') { setPage('dashboard'); setCurrentId(null); }
-    else if (normalized === '/locations') { setPage('locations'); setCurrentId(null); }
-    else if (normalized === '/users') { setPage('users'); setCurrentId(null); }
-    else if (normalized === '/templates') { setPage('templates'); setCurrentId(null); }
-    else if (normalized === '/templates/new') { setPage('template_new'); setCurrentId(null); }
-    else if (normalized === '/templates/weekly') { setPage('templates_weekly'); setCurrentId(null); }
-    else if (normalized === '/templates/monthly') { setPage('templates_monthly'); setCurrentId(null); }
-    else if (normalized === '/agenda') { setPage('templates_agenda'); setCurrentId(null); }
-    else if (normalized === '/agenda/new') { setPage('agenda_new'); setCurrentId(null); }
-    else if (normalized.startsWith('/agenda/')) { setPage('agenda_edit'); setCurrentId(normalized.replace('/agenda/', '')); }
-    else if (normalized.startsWith('/templates/')) { setPage('template_edit'); setCurrentId(normalized.replace('/templates/', '')); }
-    else if (normalized === '/locations/new') { setPage('location_new'); setCurrentId(null); }
-    else if (normalized.startsWith('/locations/')) { setPage('location_edit'); setCurrentId(normalized.replace('/locations/', '')); }
-    else if (normalized === '/users/new') { setPage('user_new'); setCurrentId(null); }
-    else if (normalized.startsWith('/users/')) { setPage('user_edit'); setCurrentId(normalized.replace('/users/', '')); }
-    else { setPage('dashboard'); setCurrentId(null); }
+    if (normalized === '/login') {
+      setPage('login'); setCurrentId(null);
+    } else if (normalized === '/' || normalized === '/dashboard') {
+      setPage('dashboard'); setCurrentId(null);
+    } else if (normalized === '/locations') {
+      setPage('locations'); setCurrentId(null);
+    } else if (normalized === '/users') {
+      setPage('users'); setCurrentId(null);
+    } else if (normalized === '/templates') {
+      setPage('templates'); setCurrentId(null);
+    } else if (normalized === '/templates/new') {
+      setPage('template_new'); setCurrentId(null);
+    } else if (normalized === '/templates/weekly') {
+      setPage('templates_weekly'); setCurrentId(null);
+    } else if (normalized === '/templates/monthly') {
+      setPage('templates_monthly'); setCurrentId(null);
+    } else if (normalized === '/agenda') {
+      setPage('templates_agenda'); setCurrentId(null);
+    } else if (normalized === '/agenda/new') {
+      setPage('agenda_new'); setCurrentId(null);
+    } else if (normalized.startsWith('/agenda/')) {
+      setPage('agenda_edit'); setCurrentId(normalized.replace('/agenda/', ''));
+    } else if (normalized.startsWith('/templates/')) {
+      setPage('template_edit'); setCurrentId(normalized.replace('/templates/', ''));
+    } else if (normalized === '/locations/new') {
+      setPage('location_new'); setCurrentId(null);
+    } else if (normalized.startsWith('/locations/')) {
+      setPage('location_edit'); setCurrentId(normalized.replace('/locations/', ''));
+    } else if (normalized === '/users/new') {
+      setPage('user_new'); setCurrentId(null);
+    } else if (normalized.startsWith('/users/')) {
+      setPage('user_edit'); setCurrentId(normalized.replace('/users/', ''));
+    } else {
+      setPage('dashboard'); setCurrentId(null);
+    }
 
     // close sidebar on navigation (mobile UX)
     setSidebarOpen(false);
@@ -84,6 +167,7 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       const p = window.location.pathname.replace(/\/$/, '');
+      if (p === '/login') { setPage('login'); setCurrentId(null); return; }
       if (p === '' || p === '/') { setPage('dashboard'); setCurrentId(null); }
       else if (p === '/locations') { setPage('locations'); setCurrentId(null); }
       else if (p === '/users') { setPage('users'); setCurrentId(null); }
@@ -105,6 +189,12 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  useEffect(() => {
+    if (!authLoading && !authUser && page !== 'login') {
+      navigate('/login');
+    }
+  }, [authLoading, authUser, page]);
+
   const fetchData = async () => {
     try {
       const [locRes, usrRes] = await Promise.all([
@@ -122,6 +212,17 @@ export default function App() {
 
   const onSaved = async () => { await fetchData(); navigate('/locations'); };
   const onUserSaved = async () => { await fetchData(); navigate('/users'); };
+
+  // if showing the login page and not authenticated, render only the login card
+  if (page === 'login' && !authLoading && !authUser) {
+    return (
+      <div className="app-root">
+        <main className="app-main">
+          <LoginPage onLogin={handleLogin} />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-root">
@@ -162,71 +263,87 @@ export default function App() {
         )}
 
         <main className="app-main">
-          {page === 'dashboard' && (
+          {authLoading ? <div>Carregando sessão...</div> : null}
+
+          {!authLoading && authUser && (
             <>
-              <section className="hero">
-                <h2>Dashboard</h2>
-                <p>Bem-vindo ao sistema de escalas — por enquanto o calendário estará vazio enquanto não criarmos templates.</p>
-              </section>
+              {mustChangePassword && <ChangePasswordModal onDone={() => setMustChangePassword(false)} />}
 
-              <section className="calendar-placeholder">
-                <div className="cal-box">Calendário (em breve)</div>
-              </section>
+              {page === 'dashboard' && (
+                <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ color: '#64748b', marginRight: 12 }}>Olá, {authUser?.name}</div>
+                  <button className="btn secondary" onClick={handleLogout}>Sair</button>
+                </div>
+              )}
+
+              {page === 'dashboard' && (
+                <>
+                  <section className="hero">
+                    <h2>Dashboard</h2>
+                    <p>Bem-vindo ao sistema de escalas — por enquanto o calendário estará vazio enquanto não criarmos templates.</p>
+                  </section>
+
+                  <section className="calendar-placeholder">
+                    <div className="cal-box">Calendário (em breve)</div>
+                  </section>
+                </>
+              )}
+
+              {/* rest of routes unchanged, render only when authenticated */}
+              {page === 'locations' && (
+                <LocationsPage locations={locations} onCreated={fetchData} />
+              )}
+
+              {page === 'users' && (
+                <UsersPage users={users} onCreated={fetchData} />
+              )}
+
+              {page === 'location_new' && (
+                <LocationEditor onSaved={onSaved} />
+              )}
+
+              {page === 'location_edit' && currentId && (
+                <LocationEditor id={currentId} onSaved={onSaved} />
+              )}
+
+              {page === 'user_new' && (
+                <UserEditor onSaved={onUserSaved} />
+              )}
+
+              {page === 'user_edit' && currentId && (
+                <UserEditor id={currentId} onSaved={onUserSaved} />
+              )}
+
+              {page === 'templates' && (
+                <ShiftTemplatesPage />
+              )}
+
+              {page === 'template_new' && (
+                <ShiftTemplateEditor onSaved={() => { fetchData(); }} />
+              )}
+
+              {page === 'template_edit' && currentId && (
+                <ShiftTemplateEditor id={currentId} onSaved={() => { fetchData(); }} />
+              )}
+
+              {page === 'templates_weekly' && (
+                <TemplatesWeeklyPage />
+              )}
+
+              {page === 'templates_monthly' && (
+                <TemplatesMonthlyPage />
+              )}
+
+              {page === 'templates_agenda' && (
+                <AgendaPage />
+              )}
+              {page === 'agenda_new' && (
+                <AgendaEventEditor />
+              )}
+              {page === 'agenda_edit' && currentId && (
+                <AgendaEventEditor id={currentId} />
+              )}
             </>
-          )}
-
-          {page === 'locations' && (
-            <LocationsPage locations={locations} onCreated={fetchData} />
-          )}
-
-          {page === 'users' && (
-            <UsersPage users={users} onCreated={fetchData} />
-          )}
-
-          {page === 'location_new' && (
-            <LocationEditor onSaved={onSaved} />
-          )}
-
-          {page === 'location_edit' && currentId && (
-            <LocationEditor id={currentId} onSaved={onSaved} />
-          )}
-
-          {page === 'user_new' && (
-            <UserEditor onSaved={onUserSaved} />
-          )}
-
-          {page === 'user_edit' && currentId && (
-            <UserEditor id={currentId} onSaved={onUserSaved} />
-          )}
-
-          {page === 'templates' && (
-            <ShiftTemplatesPage />
-          )}
-
-          {page === 'template_new' && (
-            <ShiftTemplateEditor onSaved={() => { fetchData(); }} />
-          )}
-
-          {page === 'template_edit' && currentId && (
-            <ShiftTemplateEditor id={currentId} onSaved={() => { fetchData(); }} />
-          )}
-
-          {page === 'templates_weekly' && (
-            <TemplatesWeeklyPage />
-          )}
-
-          {page === 'templates_monthly' && (
-            <TemplatesMonthlyPage />
-          )}
-
-          {page === 'templates_agenda' && (
-            <AgendaPage />
-          )}
-          {page === 'agenda_new' && (
-            <AgendaEventEditor predate={null} />
-          )}
-          {page === 'agenda_edit' && currentId && (
-            <AgendaEventEditor id={currentId} />
           )}
         </main>
       </div>
