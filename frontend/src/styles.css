@@ -39,8 +39,8 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Robo
 .app-footer { padding:12px; text-align:center; color:#718096 }
 
 /* page layout helpers */
-.page { max-width:1500px; margin:16px auto; padding:0 16px; }
-.page-header { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.page { max-width:1500px; margin:1px auto; padding:0 1px; }
+.page-header { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:1px; }
 .page-header h2 { margin:0; font-size:20px }
 .result-count { color:#64748b; font-size:14px }
 .search-input { width:100%; padding:10px 12px; border:1px solid #e6eef8; border-radius:10px; background:#fff; outline:none }
@@ -234,4 +234,18 @@ body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Robo
   .weekday-row { gap:8px }
   /* allow buttons to wrap and shrink a bit on small screens */
   .weekday-btn { min-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+}
+
+/* compact role labels and checkboxes in AgendaEventEditor */
+.assigned-users-list label { font-size: 13px; }
+.assigned-users-list input[type='checkbox'] { width: 14px; height: 14px; }
+@media (max-width: 800px) {
+  .assigned-users-list label { font-size: 12px }
+  .assigned-users-list input[type='checkbox'] { width: 12px; height: 12px }
+}
+
+/* assigned user name sizing */
+.assigned-user-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+@media (max-width: 800px) {
+  .assigned-user-name { font-size: 12px }
 }

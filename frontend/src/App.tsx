@@ -16,7 +16,7 @@ const apiBase = metaEnv.VITE_API_BASE ? metaEnv.VITE_API_BASE : (metaEnv.DEV ? '
 axios.defaults.baseURL = apiBase;
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [page, setPage] = useState<string>(() => {

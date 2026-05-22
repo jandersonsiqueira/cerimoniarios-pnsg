@@ -136,8 +136,8 @@ export default function AgendaEventEditor({ predate, id }: { predate?: string, i
       <div className="page-header">
       </div>
 
-      <div style={{ padding: 8, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 720, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 12 }}>
+      <div style={{ padding: 0, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 720, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 8 }}>
 
           <div style={{ marginBottom: 8 }}>
             <h2 style={{ margin: 0 }}>Novo Evento</h2>
@@ -176,55 +176,55 @@ export default function AgendaEventEditor({ predate, id }: { predate?: string, i
 
           <div style={{ marginTop: 12 }}>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>Usuários (atribuir funções)</div>
-            <div>
-              {assignedUsers.map((au, idx) => (
-                <div key={`${au.userId}-${idx}`} style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, padding: 8, border: '1px solid #f3f4f6', borderRadius: 6 }}>
-                  <div style={{ width: 220, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{users.find(u => String(u._id) === String(au.userId))?.name || 'Usuário'}</div>
-                  {(() => {
-                    const roles = au.roles || [];
-                    return (
-                      <div style={{ display: 'flex', gap: 1 }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <input
-                            type="checkbox"
-                            checked={roles.includes('M.C')}
-                            onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'M.C'); }}
-                          /> <span>M.C</span>
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <input
-                            type="checkbox"
-                            checked={roles.includes('C.A')}
-                            onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'C.A'); }}
-                          /> <span>C.A</span>
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <input
-                            type="checkbox"
-                            checked={roles.includes('C.L')}
-                            onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'C.L'); }}
-                          /> <span>C.L</span>
-                        </label>
-                      </div>
-                    );
-                  })()}
-                  <button title="Remover" onClick={() => { setAssignedUsers(prev => prev.filter((_, i) => i !== idx)); }} style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer' }}>🗑️</button>
-                </div>
-              ))}
+            <div className="assigned-users-list">
+               {assignedUsers.map((au, idx) => (
+                 <div key={`${au.userId}-${idx}`} style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, padding: 8, border: '1px solid #f3f4f6', borderRadius: 6 }}>
+                   <div className="assigned-user-name" style={{ width: 220, fontWeight: 500 }}>{users.find(u => String(u._id) === String(au.userId))?.name || 'Usuário'}</div>
+                   {(() => {
+                     const roles = au.roles || [];
+                     return (
+                       <div style={{ display: 'flex', gap: 1 }}>
+                         <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                           <input
+                             type="checkbox"
+                             checked={roles.includes('M.C')}
+                             onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'M.C'); }}
+                           /> <span>M.C</span>
+                         </label>
+                         <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                           <input
+                             type="checkbox"
+                             checked={roles.includes('C.A')}
+                             onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'C.A'); }}
+                           /> <span>C.A</span>
+                         </label>
+                         <label style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                           <input
+                             type="checkbox"
+                             checked={roles.includes('C.L')}
+                             onChange={(e) => { e.stopPropagation(); toggleRole(idx, 'C.L'); }}
+                           /> <span>C.L</span>
+                         </label>
+                       </div>
+                     );
+                   })()}
+                   <button title="Remover" onClick={() => { setAssignedUsers(prev => prev.filter((_, i) => i !== idx)); }} style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer' }}>🗑️</button>
+                 </div>
+               ))}
 
-              <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                <select onChange={e => {
-                  const uid = e.target.value;
-                  if (!uid) return;
-                  setAssignedUsers(prev => [...prev, { userId: uid, roles: [] }]);
-                }} style={{ flex: 1, padding: 8, border: '1px solid #e5e7eb', borderRadius: 6 }}>
-                  <option value="">Adicionar usuário...</option>
-                  {users.map(u => <option key={u._id} value={u._id}>{u.name}</option>)}
-                </select>
-                <div style={{ width: 120, color: '#666', alignSelf: 'center' }}>Funções</div>
-              </div>
-            </div>
-          </div>
+               <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                 <select onChange={e => {
+                   const uid = e.target.value;
+                   if (!uid) return;
+                   setAssignedUsers(prev => [...prev, { userId: uid, roles: [] }]);
+                 }} style={{ flex: 1, padding: 8, border: '1px solid #e5e7eb', borderRadius: 6 }}>
+                   <option value="">Adicionar usuário...</option>
+                   {users.map(u => <option key={u._id} value={u._id}>{u.name}</option>)}
+                 </select>
+                 <div style={{ width: 120, color: '#666', alignSelf: 'center' }}>Funções</div>
+               </div>
+             </div>
+           </div>
 
           <div style={{ marginTop: 12 }}>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>Nome do padre</div>
