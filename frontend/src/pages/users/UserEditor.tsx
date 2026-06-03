@@ -4,8 +4,15 @@ import axios from 'axios';
 export default function UserEditor({ id, onSaved }: any) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [address, setAddress] = useState('');
+  const [profession, setProfession] = useState('');
+  const [sacraments, setSacraments] = useState('');
+  const [preferredCommunity, setPreferredCommunity] = useState('');
+  const [otherPastorals, setOtherPastorals] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'servo' | 'admin'>('servo');
@@ -21,9 +28,16 @@ export default function UserEditor({ id, onSaved }: any) {
       if (!mounted) return;
       const data = res.data || {};
       setName(data.name || '');
+      setFullName(data.fullName || '');
       setEmail(data.email || '');
       setPhone(formatPhone(data.phone || ''));
       setRole(data.role || 'servo');
+      setBirthDate(data.birthDate ? new Date(data.birthDate).toISOString().slice(0,10) : '');
+      setAddress(data.address || '');
+      setProfession(data.profession || '');
+      setSacraments((data.sacraments || []).join(', '));
+      setPreferredCommunity(data.preferredCommunity || '');
+      setOtherPastorals((data.otherPastorals || []).join(', '));
     }).catch(err => console.error('load user', err)).finally(() => setLoading(false));
     return () => { mounted = false };
   }, [id]);
@@ -48,6 +62,13 @@ export default function UserEditor({ id, onSaved }: any) {
     setSaving(true);
     try {
       const payload: any = { name, email, role };
+      if (fullName) payload.fullName = fullName;
+      if (birthDate) payload.birthDate = birthDate;
+      if (address) payload.address = address;
+      if (profession) payload.profession = profession;
+      if (sacraments) payload.sacraments = sacraments.split(',').map((s: string) => s.trim()).filter(Boolean);
+      if (preferredCommunity) payload.preferredCommunity = preferredCommunity;
+      if (otherPastorals) payload.otherPastorals = otherPastorals.split(',').map((s: string) => s.trim()).filter(Boolean);
       if (phone) payload.phone = phoneDigits;
       if (password) payload.password = password;
       if (mustChangePassword) payload.mustChangePassword = true;
@@ -99,6 +120,7 @@ export default function UserEditor({ id, onSaved }: any) {
           <form onSubmit={submit}>
             <div className="form-row">
               <input className="input" placeholder="Nome" value={name} onChange={e => setName(e.target.value)} required />
+              <input className="input" placeholder="Nome completo" value={fullName} onChange={e => setFullName(e.target.value)} />
               <select className="input" value={role} onChange={e => setRole(e.target.value as any)}>
                 <option value="servo">Servo</option>
                 <option value="admin">Admin</option>
@@ -111,6 +133,19 @@ export default function UserEditor({ id, onSaved }: any) {
             <div className="form-row">
               <input className="input" type="password" placeholder="Nova Senha" value={password} onChange={e => setPassword(e.target.value)} />
               <input className="input" type="password" placeholder="Confirmar Senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+            </div>
+            <div style={{ color: '#64748b', fontSize: 13, marginTop: 6 }}>Data de Nascimento</div>
+            <div className="form-row">
+              <input className="input" type="date" placeholder="Data de nascimento" value={birthDate} onChange={e => setBirthDate(e.target.value)} />
+              <input className="input" placeholder="Endereço" value={address} onChange={e => setAddress(e.target.value)} />
+            </div>
+            <div className="form-row">
+              <input className="input" placeholder="Profissão" value={profession} onChange={e => setProfession(e.target.value)} />
+              <input className="input" placeholder="Comunidade(s) preferida(s)" value={preferredCommunity} onChange={e => setPreferredCommunity(e.target.value)} />
+            </div>
+            <div className="form-row">
+              <input className="input" placeholder="Quais sacramentos possui" value={sacraments} onChange={e => setSacraments(e.target.value)} />
+              <input className="input" placeholder="Outras pastorais" value={otherPastorals} onChange={e => setOtherPastorals(e.target.value)} />
             </div>
             {id && (
               <div style={{ marginBottom: 8 }}>
