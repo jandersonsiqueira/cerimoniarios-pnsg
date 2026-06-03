@@ -7,7 +7,14 @@ export default function LocationsPage({ locations, onCreated }: any) {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => locations.filter((l: any) => l.name.toLowerCase().includes(query.toLowerCase())), [locations, query]);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (locations || []).slice().sort((a: any, b: any) => {
+      const na = (a.name || '').toString();
+      const nb = (b.name || '').toString();
+      return na.localeCompare(nb, 'pt-BR', { sensitivity: 'base' });
+    }).filter((l: any) => (l.name || '').toLowerCase().includes(q));
+  }, [locations, query]);
   const total = filtered.length;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

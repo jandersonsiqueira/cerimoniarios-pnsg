@@ -23,6 +23,7 @@ axios.defaults.baseURL = apiBase;
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(() => (typeof window !== 'undefined' ? window.innerWidth <= 600 : false));
   const [locations, setLocations] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [page, setPage] = useState<string>(() => {
@@ -216,14 +217,28 @@ export default function App() {
 
   return (
     <div className="app-root">
-      <header className="app-header">
-        <button className="menu-btn" onClick={() => setSidebarOpen(s => !s)} aria-label="Toggle menu">☰</button>
-        <h1 className="app-title" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>Cerimoniários PNSG</h1>
+      <header className="app-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button className="menu-btn" onClick={() => setSidebarOpen(s => !s)} aria-label="Toggle menu">☰</button>
+          <h1 className="app-title" style={{ cursor: 'pointer', margin: 0 }} onClick={() => navigate('/')}>Cerimoniários PNSG</h1>
+        </div>
       </header>
 
       <div className="app-body">
-        <aside className={`app-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
-          <div className="panel">
+        <aside className={`app-sidebar ${sidebarOpen ? 'open' : 'closed'}`} style={{ width: sidebarOpen && isMobile ? '90%' : undefined }}>
+          <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ padding: '10px 12px', borderBottom: '1px solid #eee', marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <img src="/logo.png" alt="Logo" style={{ width: 50, height: 50, objectFit: 'contain', borderRadius: 6 }} />
+                <div>
+                  <div style={{ fontWeight: 700 }}>Sistema Cerimoniários</div>
+                  {authUser && (
+                    <div style={{ marginTop: 4, color: '#64748b', fontWeight: 600, fontSize: 13 }}>{authUser.name}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {!isServo && (
                 <>
@@ -243,6 +258,15 @@ export default function App() {
                 <span className="icon">🗓️</span>
                 <span className="label">Escalas</span>
               </button>
+            </div>
+
+            <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid #eee' }}>
+              {authUser && (
+                <button className="nav-btn" onClick={handleLogout} style={{ width: '100%', justifyContent: 'flex-start' }}>
+                  <span className="icon">🚪</span>
+                  <span className="label">Sair</span>
+                </button>
+              )}
             </div>
           </div>
         </aside>
@@ -264,17 +288,11 @@ export default function App() {
               {mustChangePassword && <ChangePasswordModal onDone={() => setMustChangePassword(false)} />}
 
               {page === 'dashboard' && (
-                <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'flex-end' }}>
-                  <div style={{ color: '#64748b', marginRight: 12 }}>Olá, {authUser?.name}</div>
-                  <button className="btn secondary" onClick={handleLogout}>Sair</button>
-                </div>
-              )}
-
-              {page === 'dashboard' && (
                 <>
                   <section className="hero">
                     <h2>Dashboard</h2>
                     <p>Bem-vindo ao sistema de escalas — abaixo está sua escala para hoje.</p>
+                    <div style={{ color: '#64748b', marginTop: 8 }}>{new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
                   </section>
 
                   <section style={{ marginTop: 12 }}>

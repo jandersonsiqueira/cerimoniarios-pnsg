@@ -22,7 +22,7 @@ export default function LoginPage({ onLogin }: any) {
     <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, boxSizing: 'border-box', overflow: 'hidden' }}>
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 48, lineHeight: '48px' }} aria-hidden>⛪</div>
+          <img src="/logo.png" alt="Logo Pastoral" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 6 }} />
           <h1 style={{ margin: '8px 0 0', fontSize: 20 }}>Cerimoniários PNSG</h1>
         </div>
 

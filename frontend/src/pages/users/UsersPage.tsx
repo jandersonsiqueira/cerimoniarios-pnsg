@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import axios from 'axios';
 
-const PAGE_SIZE = 10;
+// pagination removed: always show all users
 
 export default function UsersPage({ users, onCreated }: any) {
   const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
+  // const [page, setPage] = useState(1);
+  // const [showAll, setShowAll] = useState(false);
 
   const filtered = useMemo(() => users.filter((u: any) => u.name.toLowerCase().includes(query.toLowerCase())), [users, query]);
   const total = filtered.length;
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const visible = filtered;
 
   const handleDelete = async (id: string, e: any) => {
     e?.stopPropagation?.();
@@ -42,7 +42,7 @@ export default function UsersPage({ users, onCreated }: any) {
           <div className="result-count">{total} usuários</div>
         </div>
         <div style={{ width: 320 }}>
-          <input className="search-input" placeholder="Pesquisar usuários" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} />
+          <input className="search-input" placeholder="Pesquisar usuários" value={query} onChange={e => { setQuery(e.target.value); }} />
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export default function UsersPage({ users, onCreated }: any) {
                     <td className="td-sub">{u.email || '— sem email —'}</td>
                     <td className="td-actions">
                       <span style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                        <button className="action-btn danger" title="Remover" onClick={(e) => handleDelete(u  ._id, e)}>🗑️</button>
+                        <button className="action-btn danger" title="Remover" onClick={(e) => handleDelete(u._id, e)}>🗑️</button>
                       </span>
                     </td>
                   </tr>
@@ -75,16 +75,7 @@ export default function UsersPage({ users, onCreated }: any) {
             </table>
           </div>
 
-          <div className="pagination" style={{ marginTop: 18 }}>
-            <div style={{ flex: 1 }} />
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button className="page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>
-              {Array.from({ length: pages }).map((_, i) => (
-                <button key={i} className={`page-btn ${page === i+1 ? 'active' : ''}`} onClick={() => setPage(i+1)}>{i+1}</button>
-              ))}
-              <button className="page-btn" onClick={() => setPage(p => Math.min(pages, p + 1))} disabled={page === pages}>Próxima</button>
-            </div>
-          </div>
+          
         </div>
         <aside style={{ display: 'none' }} />
       </div>
