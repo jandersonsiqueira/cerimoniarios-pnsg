@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '../../assets/logo.png';
 
 export default function LoginPage({ onLogin }: any) {
   const [identity, setIdentity] = useState('');
@@ -22,7 +23,7 @@ export default function LoginPage({ onLogin }: any) {
     <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, boxSizing: 'border-box', overflow: 'hidden' }}>
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <img src="/logo.png" alt="Logo Pastoral" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 6 }} />
+          <img src={logo} alt="Logo Pastoral" style={{ width: 120, height: 120, objectFit: 'contain', borderRadius: 6 }} />
           <h1 style={{ margin: '8px 0 0', fontSize: 20 }}>Cerimoniários PNSG</h1>
         </div>
 

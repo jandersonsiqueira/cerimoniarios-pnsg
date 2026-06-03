@@ -13,6 +13,7 @@ import AgendaPage from './pages/templates/AgendaPage';
 import AgendaEventEditor from './pages/templates/AgendaEventEditor';
 import LoginPage from './pages/auth/LoginPage';
 import ChangePasswordModal from './components/ChangePasswordModal';
+import logo from './assets/logo.png';
 
 const modalStyle: React.CSSProperties = { position: 'fixed', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.4)', zIndex: 200 };
 const modalCard: React.CSSProperties = { background: '#fff', padding: 18, borderRadius: 8, width: '100%', maxWidth: 420 };
@@ -229,7 +230,7 @@ export default function App() {
           <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ padding: '10px 12px', borderBottom: '1px solid #eee', marginBottom: 8 }}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <img src="/logo.png" alt="Logo" style={{ width: 50, height: 50, objectFit: 'contain', borderRadius: 6 }} />
+                <img src={logo} alt="Logo" style={{ width: 50, height: 50, objectFit: 'contain', borderRadius: 6 }} />
                 <div>
                   <div style={{ fontWeight: 700 }}>Sistema Cerimoniários</div>
                   {authUser && (
