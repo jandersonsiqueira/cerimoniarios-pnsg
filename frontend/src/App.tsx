@@ -348,7 +348,7 @@ export default function App() {
                   <section className="hero">
                     <h2>Dashboard</h2>
                     <p>Bem-vindo ao sistema de escalas — abaixo está sua escala para hoje.</p>
-                    <div style={{ color: '#64748b', marginTop: 8 }}>{new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
+                    <div style={{ color: '#64748b', marginTop: 8 }}>{(() => { const parts = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).formatToParts(new Date()); const weekdayLong = (parts.find(p => p.type === 'weekday')?.value || ''); const day = parts.find(p => p.type === 'day')?.value || ''; const month = parts.find(p => p.type === 'month')?.value || ''; const year = parts.find(p => p.type === 'year')?.value || ''; const weekdayShort = weekdayLong.replace(/-feira/gi, '').replace(/ feira/gi, '').replace(/feira/gi, ''); const weekdayCap = weekdayShort ? (weekdayShort.charAt(0).toUpperCase() + weekdayShort.slice(1)) : ''; return `${weekdayCap} - ${day}/${month}/${year}`; })()}</div>
                   </section>
 
                   <section style={{ marginTop: 12 }}>

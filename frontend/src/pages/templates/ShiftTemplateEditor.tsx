@@ -20,7 +20,7 @@ export default function ShiftTemplateEditor({ id, onSaved }: any) {
   const [locationId, setLocationId] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [timeStart, setTimeStart] = useState('09:00');
-  const [recurrenceType, setRecurrenceType] = useState<'single'|'weekly'|'monthlyByWeekday'|'monthlyByMonthday'>('single');
+  const [recurrenceType, setRecurrenceType] = useState<'weekly'|'monthlyByWeekday'|'monthlyByMonthday'>('weekly');
   const [weekdays, setWeekdays] = useState<number[]>([]);
   const [weekOfMonth, setWeekOfMonth] = useState(1);
   const [monthDay, setMonthDay] = useState(1);
@@ -41,7 +41,7 @@ export default function ShiftTemplateEditor({ id, onSaved }: any) {
       setLocationId(typeof d.locationId === 'string' ? d.locationId : (d.locationId?._id || ''));
       setSelectedUsers((d.users||[]).map((u:any)=>u._id || u));
       setTimeStart(d.time?.start || '09:00');
-      const type = d.recurrence?.type || 'single';
+      const type = d.recurrence?.type || 'weekly';
       setRecurrenceType(type);
       if (type === 'weekly') setWeekdays(d.recurrence.weekly?.weekdays || [1,2,3,4,5,6]);
       if (type === 'monthlyByWeekday') { setWeekOfMonth(d.recurrence.monthlyByWeekday?.weekOfMonth || 1); setWeekdays([d.recurrence.monthlyByWeekday?.weekday || 7]); }
@@ -75,9 +75,7 @@ export default function ShiftTemplateEditor({ id, onSaved }: any) {
         recurrence: { startDate: new Date() }
       };
 
-      if (recurrenceType === 'single') {
-        payload.recurrence.type = 'single';
-      } else if (recurrenceType === 'weekly') {
+      if (recurrenceType === 'weekly') {
         payload.recurrence.type = 'weekly';
         payload.recurrence.weekly = { interval: 1, weekdays };
       } else if (recurrenceType === 'monthlyByWeekday') {
@@ -144,7 +142,6 @@ export default function ShiftTemplateEditor({ id, onSaved }: any) {
             <div style={{ marginTop:10 }}>  
               <div style={{ fontWeight:700, marginBottom:6 }}>Recorrência</div>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-                <label><input type="radio" checked={recurrenceType==='single'} onChange={() => setRecurrenceType('single')} /> Uma única vez</label>
                 <label><input type="radio" checked={recurrenceType==='weekly'} onChange={() => setRecurrenceType('weekly')} /> Semanalmente (fixo)</label>
                 <label><input type="radio" checked={recurrenceType==='monthlyByWeekday'} onChange={() => setRecurrenceType('monthlyByWeekday')} /> Mensal (por semana)</label>
                 <label><input type="radio" checked={recurrenceType==='monthlyByMonthday'} onChange={() => setRecurrenceType('monthlyByMonthday')} /> Mensal (dia do mês)</label>
